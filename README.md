@@ -11,13 +11,13 @@ Setelah pandai mengatur jalur-jalur khusus, kalian diminta untuk membantu North 
 
 Untuk menghitung rute-rute yang diperlukan, gunakan perhitungan dengan metode VLSM. Buat juga pohonnya, dan lingkari subnet yang dilewati.
 
-![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/c6d3b043-49d1-47bf-91ae-83ab7dd23da5)
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/2e0c9e4e-f5e1-451e-8046-e1f926b012cd)
 
 Pohon VLSM:
-![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/c08ac553-2d1e-46bc-9bf5-606bc6b33b0b)
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/14bddd46-3378-4532-8279-b6e7aefc2399)
 
 Rute:
-![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/0a6c5354-4bad-4c3d-a189-094ae8625db1)
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/927bf089-68eb-4dc8-9007-0f282089186a)
 
 Pembagian IP:
-![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/b8db2c80-bbd3-4bcd-8fd6-dc27f25e9eb9)
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/a65e8fd5-803b-4389-b15b-befab768f5e4)
