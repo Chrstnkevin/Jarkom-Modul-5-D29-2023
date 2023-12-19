@@ -181,3 +181,26 @@ apt-get install isc-dhcp-relay -y
 
  service bind9 start
 ````
+
+# No 1
+> Agar topologi yang kalian buat dapat mengakses keluar, kalian diminta untuk mengkonfigurasi Aura menggunakan iptables, tetapi tidak ingin menggunakan MASQUERADE.
+kita akan memasukkan codingan ini di node `Aura`
+````
+IPETH0="$(ip -br a | grep eth0 | awk '{print $NF}' | cut -d'/' -f1)"
+iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source "$IPETH0" -s 10.36.0.0/20
+````
+dan akan mendapatkan hasil seperti berikut
+- Router
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/33591045-7622-4159-954d-dcb51d97d796)
+
+- Server
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/6e31f898-8c1b-4583-ba70-c04788a1e348)
+
+-Client
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/36b5aa10-6076-42fc-9883-3fe8a7d75878)
+
+# No 2
+> Kalian diminta untuk melakukan drop semua TCP dan UDP kecuali port 8080 pada TCP.
+
+
+
