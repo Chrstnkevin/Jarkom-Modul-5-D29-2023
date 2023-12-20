@@ -37,7 +37,7 @@ Pembagian IP:
     
     # ke arah Heiter
     # gateway menggunakan eth0 dari Heiter
-    # Routing for subnets A9, A10 
+    # Routing for subnets A1, A2 
     route add -net 10.36.0.0 netmask 255.255.248.0 gw 10.36.14.150
     route add -net 10.36.8.0 netmask 255.255.252.0 gw 10.36.14.150
 ````
