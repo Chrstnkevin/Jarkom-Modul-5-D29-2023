@@ -304,12 +304,21 @@ iptables -A INPUT -p tcp --dport 80 -m time --timestart 12:00 --timestop 13:00 -
 iptables -A INPUT -p tcp --dport 80 -m time --timestart 11:00 --timestop 13:00 --weekdays Fri -j DROP
 iptables -A INPUT -p tcp --dport 80 -j DROP
 ````
+atau jalankan
+````
+bash no6.sh
+````
 
 Lalu, lakukan testing di client (saya run di TurkRegion) dengan mengubah tanggalnya terlebih dahulu
 
 ````
 nmap 10.36.8.2
 nmap 10.36.14.142
+````
+atau jalankan
+````
+bash no6a.sh
+bash no6b.sh
 ````
 
 # No 7
@@ -327,18 +336,35 @@ iptables -A PREROUTING -t nat -p tcp --dport 443 -d 10.36.14.142 -m statistic --
 
 iptables -A PREROUTING -t nat -p tcp --dport 443 -d 10.36.14.142 -j DNAT --to-destination 10.36.8.2
 ````
+atau jalankan
+````
+bash no7.sh
+````
 lalu, lakukan testing di client (saya run di TurkRegion) deengan meengubah tanggalnya terlebih dahulu
 
 Di Sein, jalankan
 ````while true; do nc -l -p 80 -c 'echo "ini sein bro"'; done````
+atau
+````
+bash no7.sh
+````
 
 Di Stark, jalankan
 ````while true; do nc -l -p 80 -c 'echo "ini stark bro"'; done````
+atau
+````
+bash no7.sh
+````
 
 Lalu, di client TurkRegion, jalankan
 ````
 nc 10.36.8.2 80
 nc 10.36.14.142 80
+````
+atau
+````
+bash no7a.sh
+bash no7b.sh
 ````
 
 # No 8
@@ -348,14 +374,25 @@ Di web server (Sein dan Stark), lakukan seperti di bawah ini
 ````
 iptables -A INPUT -s 10.36.14.130 -p tcp --dport 80 -m time --datestart 2023-12-14 --datestop 2024-06-26 -j DROP
 ````
+atau
+````
+bash no8.sh
+````
 
 Lalu, lakukan testing di Revolte dengan mengganti date teerlebih dahulu dan memasukkan syntax berikut
 ````
 nmap 10.36.8.2 80
 nmap 10.36.14.142 80
 ````
+atau
+````
+bash no8a.sh
+bash no8b.sh
+````
 
 # No 9
+Sadar akan adanya potensial saling serang antar kubu politik, maka WebServer harus dapat secara otomatis memblokir alamat IP yang melakukan scanning port dalam jumlah banyak (maksimal 20 scan port) di dalam selang waktu 10 menit (clue: test dengan nmap).
+
 Lakukan setting di Web Server (sein dan stark) dan masukkan configurasi sebagai berikut
 ````
 iptables -N scan_port
@@ -368,18 +405,33 @@ iptables -A INPUT -m recent --name scan_port --set -j ACCEPT
 
 iptables -A FORWARD -m recent --name scan_port --set -j ACCEPT
 ````
+atau
+````
+bash no9.sh
+````
 
 Lalu, lakukan setting dengan menjalankan syntax berikut di GrobeForest
 ````
 ping 10.36.8.2
 ping 10.36.14.142
 ````
+atau
+````
+bash no9a.sh
+bash no9b.sh
+````
 
 # No 10
+Karena kepala suku ingin tau paket apa saja yang di-drop, maka di setiap node server dan router ditambahkan logging paket yang di-drop dengan standard syslog level.
+
 Masukkan syntax berikut ke setiap node server (DNS, DHCP, Web) dan setiap router
 
 ````
 iptables -A INPUT  -j LOG --log-level debug --log-prefix 'Dropped Packet' -m limit --limit 1/second --limit-burst 10
+````
+atau 
+````
+bash no10.sh
 ````
 
 
