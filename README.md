@@ -287,3 +287,12 @@ iptables -A INPUT -m time --timestart 08:00 --timestop 16:00 --weekdays Mon,Tue,
 iptables -A INPUT -j REJECT
 ````
 
+set pada web server jam yang diinginkan `date --set="2023-12-13 14:00:00"`
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/1fe93e9d-3883-48bf-b63c-60b7cae4e6ec)
+
+maka akan didapatkan hasil berhasil dan gagal
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/7f388b55-4782-42b7-9303-191c0d2282dd)
+
+# No 6
+> Lalu, karena ternyata terdapat beberapa waktu di mana network administrator dari WebServer tidak bisa stand by, sehingga perlu ditambahkan rule bahwa akses pada hari Senin - Kamis pada jam 12.00 - 13.00 dilarang (istirahat maksi cuy) dan akses di hari Jumat pada jam 11.00 - 13.00 juga dilarang (maklum, Jumatan rek).
+
