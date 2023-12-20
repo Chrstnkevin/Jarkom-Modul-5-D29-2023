@@ -298,19 +298,19 @@ maka akan didapatkan hasil berhasil dan gagal
 
 Di Web Server `(Sein dan Stark)`
 
-`shell
+````
 iptables -A INPUT -p tcp --dport 80 -m time --timestart 13:01 --timestop 10:59 --weekdays Mon,Tue,Wed,Thu,Fri -j ACCEPT
 iptables -A INPUT -p tcp --dport 80 -m time --timestart 12:00 --timestop 13:00 --weekdays Mon,Tue,Wed,Thu -j DROP
 iptables -A INPUT -p tcp --dport 80 -m time --timestart 11:00 --timestop 13:00 --weekdays Fri -j DROP
 iptables -A INPUT -p tcp --dport 80 -j DROP
-`
+````
 
 Lalu, lakukan testing di client (saya run di TurkRegion) dengan mengubah tanggalnya terlebih dahulu
 
-`
+````
 nmap 10.36.8.2
 nmap 10.36.14.142
-`
+````
 
 # No 7
 
@@ -318,7 +318,7 @@ nmap 10.36.14.142
 
 Di Router yang menempel dengan Web Server (Heiter dan Frieren)
 
-`
+````
 iptables -A PREROUTING -t nat -p tcp --dport 80 -d 10.36.8.2 -m statistic --mode nth --every 2 --packet 0 -j DNAT --to-destination 10.36.14.142
 
 iptables -A PREROUTING -t nat -p tcp --dport 80 -d 10.36.8.2 -j DNAT --to-destination 10.36.14.142
@@ -326,38 +326,38 @@ iptables -A PREROUTING -t nat -p tcp --dport 80 -d 10.36.8.2 -j DNAT --to-destin
 iptables -A PREROUTING -t nat -p tcp --dport 443 -d 10.36.14.142 -m statistic --mode nth --every 2 --packet 0 -j DNAT --to-destination 10.36.8.2
 
 iptables -A PREROUTING -t nat -p tcp --dport 443 -d 10.36.14.142 -j DNAT --to-destination 10.36.8.2
-`
+````
 lalu, lakukan testing di client (saya run di TurkRegion) deengan meengubah tanggalnya terlebih dahulu
 
 Di Sein, jalankan
-`while true; do nc -l -p 80 -c 'echo "ini sein bro"'; done`
+````while true; do nc -l -p 80 -c 'echo "ini sein bro"'; done````
 
 Di Stark, jalankan
-`while true; do nc -l -p 80 -c 'echo "ini stark bro"'; done`
+````while true; do nc -l -p 80 -c 'echo "ini stark bro"'; done````
 
 Lalu, di client TurkRegion, jalankan
-`
+````
 nc 10.36.8.2 80
 nc 10.36.14.142 80
-`
+````
 
 # No 8
 Karena berbeda koalisi politik, maka subnet dengan masyarakat yang berada pada Revolte dilarang keras mengakses WebServer hingga masa pencoblosan pemilu kepala suku 2024 berakhir. Masa pemilu (hingga pemungutan dan penghitungan suara selesai) kepala suku bersamaan dengan masa pemilu Presiden dan Wakil Presiden Indonesia 2024.
 
 Di web server (Sein dan Stark), lakukan seperti di bawah ini
-`
+````
 iptables -A INPUT -s 10.36.14.130 -p tcp --dport 80 -m time --datestart 2023-12-14 --datestop 2024-06-26 -j DROP
-`
+````
 
 Lalu, lakukan testing di Revolte dengan mengganti date teerlebih dahulu dan memasukkan syntax berikut
-`
+````
 nmap 10.36.8.2 80
 nmap 10.36.14.142 80
-`
+````
 
 # No 9
 Lakukan setting di Web Server (sein dan stark) dan masukkan configurasi sebagai berikut
-`
+````
 iptables -N scan_port
 
 iptables -A INPUT -m recent --name scan_port --update --seconds 600 --hitcount 20 -j DROP
@@ -367,20 +367,20 @@ iptables -A FORWARD -m recent --name scan_port --update --seconds 600 --hitcount
 iptables -A INPUT -m recent --name scan_port --set -j ACCEPT
 
 iptables -A FORWARD -m recent --name scan_port --set -j ACCEPT
-`
+````
 
 Lalu, lakukan setting dengan menjalankan syntax berikut di GrobeForest
-`
+````
 ping 10.36.8.2
 ping 10.36.14.142
-`
+````
 
 # No 10
 Masukkan syntax berikut ke setiap node server (DNS, DHCP, Web) dan setiap router
 
-`
+````
 iptables -A INPUT  -j LOG --log-level debug --log-prefix 'Dropped Packet' -m limit --limit 1/second --limit-burst 10
-`
+````
 
 
 
