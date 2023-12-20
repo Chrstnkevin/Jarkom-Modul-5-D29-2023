@@ -230,6 +230,7 @@ Penjelasan
 -j ACCEPT: Menentukan tindakan yang diambil jika paket memenuhi kriteria aturan, dalam hal ini menerima paket.
 -j DROP: Menentukan tindakan yang diambil jika paket memenuhi kriteria aturan, dalam hal ini menolak (DROP) paket.''
 
+GAGAL
 # No 3
 > Kepala Suku North Area meminta kalian untuk membatasi DHCP dan DNS Server hanya dapat dilakukan ping oleh maksimal 3 device secara bersamaan, selebihnya akan di drop
 
@@ -299,24 +300,20 @@ maka akan didapatkan hasil berhasil dan gagal
 Di Web Server `(Sein dan Stark)`
 
 ````
-iptables -A INPUT -p tcp --dport 80 -m time --timestart 13:01 --timestop 10:59 --weekdays Mon,Tue,Wed,Thu,Fri -j ACCEPT
-iptables -A INPUT -p tcp --dport 80 -m time --timestart 12:00 --timestop 13:00 --weekdays Mon,Tue,Wed,Thu -j DROP
-iptables -A INPUT -p tcp --dport 80 -m time --timestart 11:00 --timestop 13:00 --weekdays Fri -j DROP
-iptables -A INPUT -p tcp --dport 80 -j DROP
+iptables -A INPUT -m time --timestart 12:00 --timestop 13:00 --weekdays Mon,Tue,Wed,Thu -j REJECT
+
+iptables -A INPUT -m time --timestart 11:00 --timestop 13:00 --weekdays Fri -j REJECT
 ````
 
-Lalu, lakukan testing di client (saya run di TurkRegion) dengan mengubah tanggalnya terlebih dahulu
+set pada web server jam yang diinginkan `date --set="2023-12-13 14:00:00"` lalu coba ping IP Tujuan
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/3a5becf9-b3f9-4b7f-969e-cb444a80eded)
 
-````
-nmap 10.36.8.2
-nmap 10.36.14.142
-````
 
 # No 7
 
 > Karena terdapat 2 WebServer, kalian diminta agar setiap client yang mengakses Sein dengan Port 80 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan dan request dari client yang mengakses Stark dengan port 443 akan didistribusikan secara bergantian pada Sein dan Stark secara berurutan.
 
-Di Router yang menempel dengan Web Server (Heiter dan Frieren)
+Di Router yang menempel dengan Web Server (Heiter dan Frieren) misal jalankan command dibawah pada Heiter:
 
 ````
 iptables -A PREROUTING -t nat -p tcp --dport 80 -d 10.36.8.2 -m statistic --mode nth --every 2 --packet 0 -j DNAT --to-destination 10.36.14.142
@@ -327,36 +324,47 @@ iptables -A PREROUTING -t nat -p tcp --dport 443 -d 10.36.14.142 -m statistic --
 
 iptables -A PREROUTING -t nat -p tcp --dport 443 -d 10.36.14.142 -j DNAT --to-destination 10.36.8.2
 ````
-atau jalankan
+
+Jalankan `iptables -t nat -L PREROUTING --line-numbers -v` di heiter
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/c32eb134-0487-4758-9fbc-2e9c1d30e20a)
+
 
 lalu, lakukan testing di client (saya run di TurkRegion) deengan meengubah tanggalnya terlebih dahulu
 
 Di Sein, jalankan
-````while true; do nc -l -p 80 -c 'echo "ini sein bro"'; done````
+````
+while true; do nc -l -p 80 -c 'echo "ini sein bro"'; done
+````
 
 Di Stark, jalankan
-````while true; do nc -l -p 80 -c 'echo "ini stark bro"'; done````
+````
+while true; do nc -l -p 80 -c 'echo "ini stark bro"'; done
+````
 
 Lalu, di client TurkRegion, jalankan
 ````
 nc 10.36.8.2 80
 nc 10.36.14.142 80
 ````
+(GAGAL)
 
 # No 8
 Karena berbeda koalisi politik, maka subnet dengan masyarakat yang berada pada Revolte dilarang keras mengakses WebServer hingga masa pencoblosan pemilu kepala suku 2024 berakhir. Masa pemilu (hingga pemungutan dan penghitungan suara selesai) kepala suku bersamaan dengan masa pemilu Presiden dan Wakil Presiden Indonesia 2024.
 
 Di web server (Sein dan Stark), lakukan seperti di bawah ini
 ````
-iptables -A INPUT -s 10.36.14.130 -p tcp --dport 80 -m time --datestart 2023-12-14 --datestop 2024-06-26 -j DROP
+A1_Subnet="10.36.14.128/30"
+
+Pemilu_Start=$(date -d "2024-02-14T00:00" +"%Y-%m-%dT%H:%M")
+
+Pemilu_End=$(date -d "2024-06-26T00:00" +"%Y-%m-%dT%H:%M")
+
+iptables -A INPUT -s $A1_Subnet -m time --datestart $Pemilu_Start --datestop $Pemilu_End -j REJECT
 ````
 
-Lalu, lakukan testing di Revolte dengan mengganti date teerlebih dahulu dan memasukkan syntax berikut
-````
-nmap 10.36.8.2 80
-nmap 10.36.14.142 80
-````
-
+- Lalu, lakukan testing di Client `date --set="2024-03-15" #Within election period`
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/105e1dbf-268c-435e-946e-9774842d7977)
+ 
 # No 9
 Sadar akan adanya potensial saling serang antar kubu politik, maka WebServer harus dapat secara otomatis memblokir alamat IP yang melakukan scanning port dalam jumlah banyak (maksimal 20 scan port) di dalam selang waktu 10 menit (clue: test dengan nmap).
 
@@ -373,11 +381,8 @@ iptables -A INPUT -m recent --name scan_port --set -j ACCEPT
 iptables -A FORWARD -m recent --name scan_port --set -j ACCEPT
 ````
 
-Lalu, lakukan setting dengan menjalankan syntax berikut di GrobeForest
-````
-ping 10.36.8.2
-ping 10.36.14.142
-````
+Lalu, lakukan ping sebanyak 25x dengan menjalankan syntax berikut di GrobeForest `ping 10.36.14.142 -c 25`
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/b2778bb9-f105-4971-809e-e6c8e13b63fc)
 
 # No 10
 Karena kepala suku ingin tau paket apa saja yang di-drop, maka di setiap node server dan router ditambahkan logging paket yang di-drop dengan standard syslog level.
@@ -385,8 +390,14 @@ Karena kepala suku ingin tau paket apa saja yang di-drop, maka di setiap node se
 Masukkan syntax berikut ke setiap node server (DNS, DHCP, Web) dan setiap router
 
 ````
-iptables -A INPUT  -j LOG --log-level debug --log-prefix 'Dropped Packet' -m limit --limit 1/second --limit-burst 10
+iptables -A INPUT  -j LOG --log-level debug --log-prefix 'Dropped Packet' -m limit --limit 1/second --limit-burst 10\\
+
+iptables -A INPUT -j LOG --log-level debug --log-prefix "Dropped Packet: "
 ````
+
+Lihat dengan menggunakan `iptables -L`
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/c6f9bd4b-7196-4cc9-b34b-bea6d5a1ba84)
+
 
 
 
