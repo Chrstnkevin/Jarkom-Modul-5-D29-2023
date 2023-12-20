@@ -189,6 +189,10 @@ kita akan memasukkan codingan ini di node `Aura`
 IPETH0="$(ip -br a | grep eth0 | awk '{print $NF}' | cut -d'/' -f1)"
 iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source "$IPETH0" -s 10.36.0.0/20
 ````
+menggunakan SNAT --to-source yang mengarah pada NID dari router yang berhubungan dengan NAT, yaitu 10.36.0.0/20. 
+Dengan kata lain, IP tesebut adalah IP terluar / terjauh yang mencakup seluruh IP yang kita peroleh sebelumnya.
+
+Sebelumnya juga perlu didefinisikan interface mana yang terkoneksi dengan NAT. Pada kasus ini adalah Aura, interface yang berhubungan adalah eth0. Definisi tersebut dapat dimasukkan ke dalam sebuah variabel. Di sini, digunakan variabel bernama IPETH0.
 dan akan mendapatkan hasil seperti berikut
 - Router
 ![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/33591045-7622-4159-954d-dcb51d97d796)
@@ -202,5 +206,84 @@ dan akan mendapatkan hasil seperti berikut
 # No 2
 > Kalian diminta untuk melakukan drop semua TCP dan UDP kecuali port 8080 pada TCP.
 
+````
+apt install netcat
+````
 
+pada sender masukkan
+````
+nc <ip receiver> 8080
+````
+
+pada receiver masukkan
+````
+iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+iptables -A INPUT -p tcp -j DROP
+iptables -A INPUT -p udp -j DROP
+
+nc -l -p 8080
+````
+Penjelasan
+
+-A INPUT: Menambahkan aturan ke chain INPUT (rantai yang digunakan untuk lalu lintas yang menuju ke sistem).
+-p tcp: Menentukan protokol yang digunakan, dalam hal ini TCP. --dport 8080: Menentukan port tujuan, dalam hal ini port 8080.
+-j ACCEPT: Menentukan tindakan yang diambil jika paket memenuhi kriteria aturan, dalam hal ini menerima paket.
+-j DROP: Menentukan tindakan yang diambil jika paket memenuhi kriteria aturan, dalam hal ini menolak (DROP) paket.''
+
+# No 3
+> Kepala Suku North Area meminta kalian untuk membatasi DHCP dan DNS Server hanya dapat dilakukan ping oleh maksimal 3 device secara bersamaan, selebihnya akan di drop
+
+````
+iptables -I INPUT -p icmp -m connlimit --connlimit-above 3 --connlimit-mask 0 -j DROP
+iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+````
+dengan memanfaatkan port icmp, dilakukan limit koneksi dengan --connlimit-above menggunakan parameter 3. Tidak lupa, gunakan mask 0 yang berarti semua akses akan masuk ke dalam filtering dari --connlimit. Jika telah terdapat 3 koneksi, maka koneksi selanjutnya akan di-drop.
+
+Penjelasan
+-I INPUT: Menyisipkan aturan ke awal chain INPUT.
+-p icmp: Menentukan protokol yang digunakan, dalam hal ini ICMP (Internet Control Message Protocol), yang sering digunakan untuk ping dan pesan kontrol jaringan.
+-m connlimit: Menggunakan modul connlimit untuk membatasi jumlah koneksi.
+--connlimit-above 3: Menentukan batas atas jumlah koneksi yang diizinkan. Dalam hal ini, aturan ini akan mencoba membatasi jumlah koneksi ICMP di atas 3.
+--connlimit-mask 0: Menetapkan mask untuk mengidentifikasi koneksi. Dengan nilai 0, aturan ini akan membatasi jumlah koneksi berdasarkan alamat IP sumber.
+--state ESTABLISHED,RELATED: Menentukan bahwa aturan ini akan diterapkan pada paket yang terkait dengan koneksi yang sudah didirikan (ESTABLISHED) atau terkait dengan koneksi yang ada (RELATED), misalnya, paket tanggapan terkait permintaan koneksi.
+-m state: Menggunakan modul state untuk mengelola status koneksi.
+-j DROP: Menentukan tindakan yang diambil jika batasan koneksi terlampaui, dalam hal ini menolak (DROP) paket.
+
+Hasil
+- Ping 10.36.14.130 di Stark
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/00255a46-9c6a-460c-9701-2646e941a5d5)
+
+- Ping 10.36.14.130 di heiter
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/183539b5-b866-462e-bb9f-480f3aac3c10)
+
+- Ping 10.36.14.130 di Frieren
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/c40e7ab0-26dd-45fb-877e-f5c69ab22eee)
+
+- Ketika ingin ping selanjutnya di node berbeda maka akan terhenti dan tidak akan diproses
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/42702bfc-2d85-4e01-8027-ddeed5fb8006)
+
+# No 4
+> Lakukan pembatasan sehingga koneksi SSH pada Web Server hanya dapat dilakukan oleh masyarakat yang berada pada GrobeForest.
+
+masuk ke `webserver`
+````
+iptables -A INPUT -p tcp --dport 22 -s 10.10.8.0/22 -j ACCEPT
+
+iptables -A INPUT -p tcp --dport 22 -j REJECT
+````
+- testing `nmap 10.36.14.142 -p 22` pada GrobeForest, bisa terlihat dia open untuk port 22.
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/4d3d0842-87b0-48f3-9df2-52b01069e4bc)
+
+- testing `nmap 10.36.14.142 -p 22` pada TurkRegion, bisa terlihat dia closed untuk port 22.
+![image](https://github.com/Chrstnkevin/Jarkom-Modul-5-D29-2023/assets/97864068/f237b302-9916-4456-84ac-d72864f83168)
+
+# No 5
+> Selain itu, akses menuju WebServer hanya diperbolehkan saat jam kerja yaitu Senin-Jumat pada pukul 08.00-16.00.
+
+masuk ke `webserver`
+````
+iptables -A INPUT -m time --timestart 08:00 --timestop 16:00 --weekdays Mon,Tue,Wed,Thu,Fri -j ACCEPT
+
+iptables -A INPUT -j REJECT
+````
 
