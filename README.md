@@ -212,7 +212,7 @@ apt install netcat
 
 pada sender masukkan
 ````
-nc <ip receiver> 8080
+nc -l -p 8080
 ````
 
 pada receiver masukkan
@@ -221,7 +221,7 @@ iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
 iptables -A INPUT -p tcp -j DROP
 iptables -A INPUT -p udp -j DROP
 
-nc -l -p 8080
+nc <ip> 8080
 ````
 Penjelasan
 
@@ -240,14 +240,14 @@ iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 dengan memanfaatkan port icmp, dilakukan limit koneksi dengan --connlimit-above menggunakan parameter 3. Tidak lupa, gunakan mask 0 yang berarti semua akses akan masuk ke dalam filtering dari --connlimit. Jika telah terdapat 3 koneksi, maka koneksi selanjutnya akan di-drop.
 
 Penjelasan
--I INPUT: Menyisipkan aturan ke awal chain INPUT.
--p icmp: Menentukan protokol yang digunakan, dalam hal ini ICMP (Internet Control Message Protocol), yang sering digunakan untuk ping dan pesan kontrol jaringan.
--m connlimit: Menggunakan modul connlimit untuk membatasi jumlah koneksi.
---connlimit-above 3: Menentukan batas atas jumlah koneksi yang diizinkan. Dalam hal ini, aturan ini akan mencoba membatasi jumlah koneksi ICMP di atas 3.
---connlimit-mask 0: Menetapkan mask untuk mengidentifikasi koneksi. Dengan nilai 0, aturan ini akan membatasi jumlah koneksi berdasarkan alamat IP sumber.
---state ESTABLISHED,RELATED: Menentukan bahwa aturan ini akan diterapkan pada paket yang terkait dengan koneksi yang sudah didirikan (ESTABLISHED) atau terkait dengan koneksi yang ada (RELATED), misalnya, paket tanggapan terkait permintaan koneksi.
--m state: Menggunakan modul state untuk mengelola status koneksi.
--j DROP: Menentukan tindakan yang diambil jika batasan koneksi terlampaui, dalam hal ini menolak (DROP) paket.
+- -I INPUT: Menyisipkan aturan ke awal chain INPUT.
+- -p icmp: Menentukan protokol yang digunakan, dalam hal ini ICMP (Internet Control Message Protocol), yang sering digunakan untuk ping dan pesan kontrol jaringan.
+- -m connlimit: Menggunakan modul connlimit untuk membatasi jumlah koneksi.
+- --connlimit-above 3: Menentukan batas atas jumlah koneksi yang diizinkan. Dalam hal ini, aturan ini akan mencoba membatasi jumlah koneksi ICMP di atas 3.
+- --connlimit-mask 0: Menetapkan mask untuk mengidentifikasi koneksi. Dengan nilai 0, aturan ini akan membatasi jumlah koneksi berdasarkan alamat IP sumber.
+- --state ESTABLISHED,RELATED: Menentukan bahwa aturan ini akan diterapkan pada paket yang terkait dengan koneksi yang sudah didirikan (ESTABLISHED) atau terkait dengan koneksi yang ada (RELATED), misalnya, paket tanggapan terkait permintaan koneksi.
+- -m state: Menggunakan modul state untuk mengelola status koneksi.
+- -j DROP: Menentukan tindakan yang diambil jika batasan koneksi terlampaui, dalam hal ini menolak (DROP) paket.
 
 Hasil
 - Ping 10.36.14.130 di Stark
